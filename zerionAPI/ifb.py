@@ -7,51 +7,149 @@ class IFB(API):
     def __init__(self, server, client_key, client_secret, params={}):
         super().__init__(server, client_key, client_secret, params)
         self.__server = server
-        self.__client_key = client_key
-        self.__client_secret = client_secret
         self.__isQA = True if params.get('isQA',False) or self.__server == 'loadapp' or re.search(r'^support', self.__server) else False
         self.__version = params.get('version', 8.0)
         self.__host = f'https://{"qa-api" if self.__isQA else "api"}.iformbuilder.com/exzact/api/v{str(self.__version).replace(".","")}/{self.__server}'
         self.__rate_limit_retry = params.get('rate_limit_retry',False)
 
-    __allowed_methods = {
-        'Profiles': ('POST', 'GET', 'PUT'),
-        'CompanyInfo': ('GET', 'PUT'),
-        'Users': ('POST', 'GET', 'PUT', 'DELETE'),
-        'UserPageAssignments': ('POST', 'GET', 'PUT', 'DELETE'),
-        'UserRecordAssignments': ('POST', 'GET', 'PUT', 'DELETE'),
-        'UserGroups': ('POST', 'GET', 'PUT', 'DELETE'),
-        'UserGroupUserAssignments': ('POST', 'GET', 'PUT', 'DELETE'),
-        'UserGroupPageAssignments': ('POST', 'GET', 'PUT', 'DELETE'),
-        'Pages': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageFeeds': ('GET'),
-        'PageLocalizations': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageUserAssignments': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageRecordAssignments': ('GET', 'DELETE'),
-        'PageEndpoints': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageEmailAlerts': ('POST', 'GET', 'DELETE'),
-        'PageTriggerPost': ('POST'),
-        'PageShares': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageDynamicAttributes': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageGroups': ('POST', 'GET', 'PUT', 'DELETE'),
-        'PageGroupAssignments': ('POST', 'GET', 'DELETE'),
-        'PageGroupUserAssignments': ('POST', 'GET', 'PUT', 'DELETE'),
-        'Elements': ('POST', 'GET', 'PUT', 'DELETE', 'COPY'),
-        'ElementLocalizations': ('POST', 'GET', 'PUT', 'DELETE'),
-        'ElementDynamicAttributes': ('POST', 'GET', 'PUT', 'DELETE'),
-        'OptionLists': ('POST', 'GET', 'PUT', 'DELETE', 'COPY'),
-        'Options': ('POST', 'GET', 'PUT', 'DELETE'),
-        'OptionLocalizations': ('POST', 'GET', 'PUT', 'DELETE'),
-        'Records': ('POST', 'GET', 'PUT', 'DELETE', 'COPY'),
-        'RecordAssignments': ('POST', 'GET', 'DELETE'),
-        'Notifications': ('POST'),
-        'PrivateMedia': ('GET'),
-        'DeviceLicenses': ('GET')
+    __resources = {
+        'Profiles': {
+            'Methods': ('POST', 'GET', 'PUT'),
+            'URI': 'profiles'
+        },
+        'CompanyInfo': {
+            'Methods': ('GET', 'PUT'),
+            'URI': 'profiles/%s/company_info'
+        },
+        'Users': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/users'
+        },
+        'UserPageAssignments': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/users/%s/page_assignments'
+        },
+        'UserRecordAssignments': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/users/%s/record_assignments'
+        },
+        'UserGroups': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/user_groups'
+        },
+        'UserGroupUserAssignments': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/user_groups/%s/users'
+        },
+        'UserGroupPageAssignments': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/user_groups%s/page_assignments'
+        },
+        'Pages': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages'
+        },
+        'PageFeeds': {
+            'Methods': ('GET'),
+            'URI': 'profiles/%s/pages/%s/feed'
+        },
+        'PageLocalizations': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/localizations'
+        },
+        'PageUserAssignments': 
+        {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/assignments'
+        },
+        'PageRecordAssignments': {
+            'Methods': ('GET', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/record_assignments'
+        },
+        'PageEndpoints': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/http_callbacks'
+        },
+        'PageEmailAlerts': {
+            'Methods': ('POST', 'GET', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/email_alerts'
+        },
+        'PageTriggerPost': {
+            'Methods': ('POST'),
+            'URI': 'profiles/%s/pages/%s/trigger_posts'
+        },
+        'PageShares': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/shared_page'
+        },
+        'PageDynamicAttributes': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/dynamic_attributes'
+        },
+        'PageGroups': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/page_groups'
+        },
+        'PageGroupAssignments': {
+            'Methods': ('POST', 'GET', 'DELETE'),
+            'URI': 'profiles/%s/page_groups/%s/pages'
+        },
+        'PageGroupUserAssignments': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/page_groups/%s/assignments'
+        },
+        'Elements': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/elements'
+        },
+        'ElementLocalizations': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/elements/%s/localizations'
+        },
+        'ElementDynamicAttributes': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/elements/%s/dynamic_attributes'
+        },
+        'OptionLists': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE', 'COPY'),
+            'URI': 'profiles/%s/optionlists'
+        },
+        'Options': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/optionlists/%s/options'
+        },
+        'OptionLocalizations': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/optionlists/%s/options/%s/localizations'
+        },
+        'Records': {
+            'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/records'
+        },
+        'RecordAssignments': {
+            'Methods': ('POST', 'GET', 'DELETE'),
+            'URI': 'profiles/%s/pages/%s/records/%s/assignments'
+        },
+        'Notifications': {
+            'Methods': ('POST'),
+            'URI': 'profiles/%s/notifications'
+        },
+        'PrivateMedia': {
+            'Methods': ('GET'),
+            'URI': 'profiles/%s/media'
+        },
+        'DeviceLicenses': {
+            'Methods': ('GET'),
+            'URI': 'profiles/%s/licenses'
+        }
     }
 
     def __methodCheck(self, method, resource):
-        if method.upper() not in self.__allowed_methods[resource]:
-            raise ValueError(f'The "{method}" is not allowed for {resource}')
+        if method.upper() not in self.__resources[resource]['Methods']:
+            raise ValueError(f'The "{method}" method is not allowed for {resource}')
+
+    def __getResourceURI(self, resource):
+        return self.__resources[resource]['URI']
 
     def __completeURI(self, resource, resource_id=None, params=None):
         resource = f'{self.__host}/{resource}'
@@ -68,18 +166,26 @@ class IFB(API):
 
         return resource
 
+    def describeResources(self):
+        return self.__resources.keys()
+
+    def describeResource(self, resource):
+        return self.__resources.get(resource, 'Resource is not defined')
+
     """
     Profile Resources: https://iformbuilder80.docs.apiary.io/reference/profile-resource
     """
     def Profiles(self, method, profile_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource)
         request = self.__completeURI(request, profile_id, params)
         return API.call(self, method, request, body)
 
     def CompanyInfo(self, method, profile_id, *, body=None):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/company_info'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request)
         return API.call(self, method, request, body)
 
@@ -87,20 +193,23 @@ class IFB(API):
     User Resources: https://iformbuilder80.docs.apiary.io/reference/user-resource
     """
     def Users(self, method, profile_id, user_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/users'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request, user_id, params)
         return API.call(self, method, request, body)
 
     def UserPageAssignments(self, method, profile_id, user_id, page_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/users/{user_id}/page_assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, user_id)
         request = self.__completeURI(request, page_id, params)
         return API.call(self, method, request, body)
 
     def UserRecordAssignments(self, method, profile_id, user_id, record_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/users/{user_id}/record_assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, user_id)
         request = self.__completeURI(request, record_id, params)
         return API.call(self, method, request, body)
 
@@ -108,20 +217,23 @@ class IFB(API):
     User Group Resources: https://iformbuilder80.docs.apiary.io/reference/user-group-resource
     """
     def UserGroups(self, method, profile_id, usergroup_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/user_groups'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request, usergroup_id, params)
         return API.call(self, method, request, body)
 
     def UserGroupUserAssignments(self, method, profile_id, usergroup_id, user_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/user_groups/{usergroup_id}/users'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, usergroup_id)
         request = self.__completeURI(request, user_id, params)
         return API.call(self, method, request, body)
 
     def UserGroupPageAssignments(self, method, profile_id, usergroup_id, page_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/user_groups/{usergroup_id}/page_assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, usergroup_id)
         request = self.__completeURI(request, page_id, params)
         return API.call(self, method, request, body)
 
@@ -129,62 +241,72 @@ class IFB(API):
     Page Resources: https://iformbuilder80.docs.apiary.io/reference/page-resource
     """
     def Pages(self, method, profile_id, page_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request, page_id, params)
         return API.call(self, method, request, body)
 
     def PageFeeds(self, method, profile_id, page_id, *, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/feed'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request)
 
     def PageLocalizations(self, method, profile_id, page_id, language_code=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/localizations'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, language_code, params)
         return API.call(self, method, request, body)
 
     def PageUserAssignments(self, method, profile_id, page_id, user_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, user_id, params)
         return API.call(self, method, request, body)
 
     def PageRecordAssignments(self, method, profile_id, page_id):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/record_assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request)
         return API.call(self, method, request)
     
     def PageEndpoints(self, method, profile_id, page_id, endpoint_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/http_callbacks'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, endpoint_id, params)
         return API.call(self, method, request, body)
 
     def PageEmailAlerts(self, method, profile_id, page_id, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/email_alerts'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
     def PageTriggerPost(self, method, profile_id, page_id, *, body=None):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/trigger_posts'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request)
         return API.call(self, method, request, body)
 
     def PageShares(self, method, profile_id, page_id, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/shared_page'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
     def PageDynamicAttributes(self, method, profile_id, page_id, dynamic_attribute=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/dynamic_attributes'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, dynamic_attribute, params)
         return API.call(self, method, request, body)
 
@@ -192,20 +314,23 @@ class IFB(API):
     Page Group Resources: https://iformbuilder80.docs.apiary.io/reference/page-group-resource
     """
     def PageGroups(self, method, profile_id, pagegroup_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/page_groups'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request, pagegroup_id, params)
         return API.call(self, method, request, body)
 
     def PageGroupAssignments(self, method, profile_id, pagegroup_id, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/page_groups/{pagegroup_id}/pages'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, pagegroup_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
     def PageGroupUserAssignments(self, method, profile_id, pagegroup_id, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/page_groups/{pagegroup_id}/assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, pagegroup_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
@@ -213,20 +338,23 @@ class IFB(API):
     Elements Resources: https://iformbuilder80.docs.apiary.io/reference/element-resource
     """
     def Elements(self, method, profile_id, page_id, element_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/elements'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, element_id, params)
         return API.call(self, method, request, body)
 
     def ElementLocalizations(self, method, profile_id, page_id, element_id, language_code=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/elements/{element_id}/localizations'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id, element_id)
         request = self.__completeURI(request, language_code, params)
         return API.call(self, method, request, body)
 
     def ElementDynamicAttributes(self, method, profile_id, page_id, element_id, dynamic_attribute=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/elements/{element_id}/dynamic_attributes'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id, element_id)
         request = self.__completeURI(request, dynamic_attribute, params)
         return API.call(self, method, request, body)
 
@@ -234,20 +362,23 @@ class IFB(API):
     Option Lists Resources: https://iformbuilder80.docs.apiary.io/reference/optionlist-resource
     """
     def OptionLists(self, method, profile_id, optionlist_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/optionlists'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request, optionlist_id, params)
         return API.call(self, method, request, body)
 
     def Options(self, method, profile_id, optionlist_id, option_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/optionlists/{optionlist_id}/options'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, optionlist_id)
         request = self.__completeURI(request, option_id, params)
         return API.call(self, method, request, body)
 
     def OptionLocalizations(self, method, profile_id, optionlist_id, option_id, language_code=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/optionlists/{optionlist_id}/options/{option_id}/localizations'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, optionlist_id, option_id)
         request = self.__completeURI(request, language_code, params)
         return API.call(self, method, request, body)
 
@@ -255,14 +386,16 @@ class IFB(API):
     Record Resources: https://iformbuilder80.docs.apiary.io/reference/record-resource
     """
     def Records(self, method, profile_id, page_id, record_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/records'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id)
         request = self.__completeURI(request, record_id, params)
         return API.call(self, method, request, body)
 
     def RecordAssignments(self, method, profile_id, page_id, record_id, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/pages/{page_id}/records/{record_id}/assignments'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id, page_id, record_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
@@ -271,14 +404,19 @@ class IFB(API):
     """
 
     def Notifications(self, method, profile_id, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/notifications'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
+    """
+    Private Media Resources: https://iformbuilder80.docs.apiary.io/reference/private-media-resource
+    """
     def PrivateMedia(self, method, profile_id, media_url=None):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/media'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         request = self.__completeURI(request)
         return API.call(self, method, request, {'URL': media_url})
 
@@ -287,6 +425,7 @@ class IFB(API):
     """
 
     def DeviceLicenses(self, method, profile_id, license_id=None, *, body=None, params={}):
-        self.__methodCheck(method, inspect.currentframe().f_code.co_name)
-        request = f'profiles/{profile_id}/licenses'
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (profile_id)
         return API.call(self, method, request, body)

@@ -5,8 +5,8 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(
-  name="zerion-py",
-  version="0.0.1",
+  name="zerionAPI",
+  version="0.0.2",
   description="Zerion Software API Wrapper",
   long_description=README,
   long_description_content_type="text/markdown",
@@ -15,7 +15,7 @@ setup(
   author_email="jhsu98@gmail.com",
   license="MIT",
   packages=["zerionAPI"],
-  python_requires='>=3.5',
+  python_requires='>=3.0',
   install_requires=[
       'pyjwt',
       'requests',

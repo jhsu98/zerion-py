@@ -3,6 +3,7 @@ import re
 import jwt
 import requests
 import json
+import abc
 
 import logging
 logging.basicConfig(filename='app.log', level=logging.DEBUG,
@@ -15,12 +16,12 @@ class Response:
         self.response = r.json()
 
     def __repr__(self):
-        return self.status_code
+        return str(self.status_code)
 
     def __str__(self):
         return str(self.status_code)
 
-class API:
+class API(abc.ABC):
     def __new__(cls, *args, **kwargs):
         if cls is Response:
             raise TypeError(f'Only children of "{cls.__name__}" may be instantiated')
@@ -131,3 +132,11 @@ class API:
                 isRateLimited = True
 
         return Response(result)
+
+    @abc.abstractmethod
+    def describeResources(self):
+        pass
+
+    @abc.abstractmethod
+    def describeResource(self, resource):
+        pass
