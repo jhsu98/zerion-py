@@ -1,3 +1,3 @@
-# zwsPy
+# zerion-py
 
 
