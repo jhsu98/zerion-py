@@ -133,3 +133,4 @@ dmypy.json
 
 # Other
 debug.py
+tests/fixtures.py

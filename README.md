@@ -65,6 +65,10 @@ result = ifb.Users('GET', 12345, params={'fields': 'username(="jhsu98")'})
 The previous example would retrieve all users within the profile 12345 who have a username that equals jhsu98.
 
 ## Changelog
+- v0.0.3: January 3, 2022
+  - Added `getParams()` method to API
+  - Added `getVersion()` method to IFB
+  - Begun unit testing
 - v0.0.2: January 2, 2022
   - Modified `API` class to be abstract base class
   - Added `URI` to __resources for IFB and DFA

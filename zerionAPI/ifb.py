@@ -172,6 +172,9 @@ class IFB(API):
     def describeResource(self, resource):
         return self.__resources.get(resource, 'Resource is not defined')
 
+    def getVersion(self):
+        return self.__version
+
     """
     Profile Resources: https://iformbuilder80.docs.apiary.io/reference/profile-resource
     """

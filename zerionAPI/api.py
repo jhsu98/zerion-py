@@ -3,7 +3,7 @@ import re
 import jwt
 import requests
 import json
-import abc
+from abc import abstractmethod, ABC
 
 import logging
 logging.basicConfig(filename='app.log', level=logging.DEBUG,
@@ -21,18 +21,14 @@ class Response:
     def __str__(self):
         return str(self.status_code)
 
-class API(abc.ABC):
-    def __new__(cls, *args, **kwargs):
-        if cls is Response:
-            raise TypeError(f'Only children of "{cls.__name__}" may be instantiated')
-        return object.__new__(cls)
-
+class API(ABC):
     def __init__(self, server=None, client_key=None, client_secret=None, params={}):
         if not isinstance(server, str) or not isinstance(client_key, str) or not isinstance(client_secret, str):
             raise TypeError("Invalid API credentials")
 
         self.__client_key = client_key
         self.__client_secret = client_secret
+        self.__params = params
         self.__access_token = None
         self.__access_token_expiration = None
         self.__start_time = None
@@ -42,12 +38,8 @@ class API(abc.ABC):
         self.__last_execution_time = None
         self.__rate_limit_retry = params.get('rate_limit_retry', False)
 
-        try:
-            self.requestAccessToken()
-        except Exception as e:
-            print(e)
-            return
-
+        self.requestAccessToken()
+        
     def requestAccessToken(self):
         """Create JWT and request iFormBuilder Access Token
         If token is successfully returned, stored in session header
@@ -82,6 +74,9 @@ class API(abc.ABC):
             self.__session.headers.update(
                 {'Authorization': "Bearer %s" % self.__access_token})
             self.__access_token_expiration = time.time() + 3300
+
+    def getParams(self):
+        return self.__params
 
     def getAccessToken(self):
         return self.__access_token
@@ -133,10 +128,10 @@ class API(abc.ABC):
 
         return Response(result)
 
-    @abc.abstractmethod
+    @abstractmethod
     def describeResources(self):
-        pass
+        raise NotImplementedError
 
-    @abc.abstractmethod
+    @abstractmethod
     def describeResource(self, resource):
-        pass
+        raise NotImplementedError
