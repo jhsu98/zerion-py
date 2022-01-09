@@ -1,4 +1,5 @@
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 from .ifb import IFB
 from .dfa import DFA
+from . import dfa_utilities, ifb_utilities

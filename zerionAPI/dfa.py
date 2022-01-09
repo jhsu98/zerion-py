@@ -1,7 +1,9 @@
 import re
 import inspect
 import urllib.parse
-from .api import API
+import json
+from pprint import pprint
+from .api import API, Response
 
 class DFA(API):
     def __init__(self, server, client_key, client_secret, params={}):
@@ -15,6 +17,18 @@ class DFA(API):
         'Dataflows': {
             'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
             'URI': 'dataflows'
+        },
+        'DataflowCount': {
+            'Methods': ('GET'),
+            'URI': 'dataflows/count'
+        },
+        'DataflowExport': {
+            'Methods': ('POST'),
+            'URI': 'dataflows/%s/export'
+        },
+        'DataflowImport': {
+            'Methods': ('POST'),
+            'URI': 'dataflows/import'
         },
         'RecordSets': {
             'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
@@ -80,6 +94,29 @@ class DFA(API):
         request = self.__completeURI(request, dataflow_id, params)
         print(request)
         return API.call(self, method, request, body)
+
+    def DataflowCount(self, dataflow_name):
+        resource = inspect.currentframe().f_code.co_name
+        request = f'{self.__getResourceURI(resource)}'
+        request = self.__completeURI(request, dataflow_name, {})
+        print(request)
+        return API.call(self, 'GET', request)
+
+    def DataflowExport(self, dataflow_id):
+        resource = inspect.currentframe().f_code.co_name
+        request = f'{self.__getResourceURI(resource)}' % dataflow_id
+        request = self.__completeURI(request, None, {})
+        return API.call(self, 'POST', request, {})
+
+    def DataflowImport(self, body):
+        resource = inspect.currentframe().f_code.co_name
+        request = f'{self.__getResourceURI(resource)}'
+        request = self.__completeURI(request, None, {})
+        body = {
+            'requestedServer': self.__host.split('/zcrypt')[0],
+            'content': json.dumps(body)
+        }
+        return API.call(self, 'POST', request, body)
 
     def RecordSets(self, method, dataflow_id, recordset_id=None, *, body=None, params={}):
         resource = inspect.currentframe().f_code.co_name

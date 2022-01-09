@@ -64,7 +64,22 @@ result = ifb.Users('GET', 12345, params={'fields': 'username(="jhsu98")'})
 ```
 The previous example would retrieve all users within the profile 12345 who have a username that equals jhsu98.
 
+## Utility Functions
+Both IFB and DFA classes have companion helper functions to simply tasks and extend the functionality of the library. Use the following import statement for the utility functions.
+```python
+from zerionAPI import dfa_utilities, ifb_utilities
+```
+Note that all utility functions require a valid Class object as the first argument. Below is a list of functions in each utility.
+|Service|Function|Description|
+|------|-------|-------|
+|IFB | `exportImages(api, profile_id, page_id, isRecursive=False, directory = '.')` | Exports all image and drawing fields from a page. Recursive and directory configurations are optional|
+|DFA|`copyDataflow(api, dataflow_id, new_dataflow_name)` |Copies a Dataflow using the supplied name for new Dataflow|
+
 ## Changelog
+- v0.0.4: January 8, 2022
+  - Added `DataflowCount()` method to DFA
+  - Added ifb utility function `exportImages()`
+  - Added dfa utility function `copyDataflow()`
 - v0.0.3: January 3, 2022
   - Added `getParams()` method to API
   - Added `getVersion()` method to IFB

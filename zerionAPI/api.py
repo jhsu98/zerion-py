@@ -3,6 +3,7 @@ import re
 import jwt
 import requests
 import json
+from pprint import pprint
 from abc import abstractmethod, ABC
 
 import logging
@@ -66,7 +67,7 @@ class API(ABC):
             result = requests.post(url, data=token_body, timeout=5)
             result.raise_for_status()
         except Exception as e:
-            print(e)
+            print(f'Exception: {e}')
             return
         else:
             self.__start_time = time.time()
