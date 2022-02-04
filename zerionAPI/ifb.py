@@ -9,8 +9,9 @@ class IFB(API):
         self.__server = server
         self.__isQA = True if params.get('isQA',False) or self.__server == 'loadapp' or re.search(r'^support', self.__server) else False
         self.__version = params.get('version', 8.0)
-        self.__host = f'https://{"qa-api" if self.__isQA else "api"}.iformbuilder.com/exzact/api/v{str(self.__version).replace(".","")}/{self.__server}'
+        self.__region = params.get('region', 'us')
         self.__rate_limit_retry = params.get('rate_limit_retry',False)
+        self.__host = f'https://{self.__region+"-api" if self.__region != "us" else "api"}.iformbuilder.com/exzact/api/v{str(self.__version).replace(".","")}/{self.__server}'
 
     __resources = {
         'Profiles': {

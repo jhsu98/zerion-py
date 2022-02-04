@@ -27,6 +27,7 @@ class API(ABC):
         if not isinstance(server, str) or not isinstance(client_key, str) or not isinstance(client_secret, str):
             raise TypeError("Invalid API credentials")
 
+        self.__server = server
         self.__client_key = client_key
         self.__client_secret = client_secret
         self.__params = params
@@ -38,6 +39,9 @@ class API(ABC):
         self.__api_calls = 0
         self.__last_execution_time = None
         self.__rate_limit_retry = params.get('rate_limit_retry', False)
+        self.__ifb_api_credentials = params.get('ifb_api_credentials', False)
+        self.__region = params.get('region', 'us')
+        self.__version = params.get('version', 8.0)
 
         self.requestAccessToken()
         
@@ -47,7 +51,11 @@ class API(ABC):
         Else null token is stored in session header
         """
         try:
-            url = "https://identity.zerionsoftware.com/oauth2/token"
+            if self.__ifb_api_credentials:
+                url = f"https://{self.__region+'-api' if self.__region != 'us' else 'api'}.iformbuilder.com/exzact/api/v{str(self.__version).replace('.','')}/{self.__server}/oauth/token"
+                # url = f"https://{self.__server}.iformbuilder.com/exzact/api/oauth/token"
+            else:
+                url = "https://identity.zerionsoftware.com/oauth2/token"
             # url = "https://qa-identity.zerionsoftware.com/oauth2/token" if self.__isQA else "https://identity.zerionsoftware.com/oauth2/token"
 
             jwt_payload = {

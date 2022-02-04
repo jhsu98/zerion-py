@@ -76,6 +76,9 @@ Note that all utility functions require a valid Class object as the first argume
 |DFA|`copyDataflow(api, dataflow_id, new_dataflow_name)` |Copies a Dataflow using the supplied name for new Dataflow|
 
 ## Changelog
+- v0.0.5: February 4, 2022
+  - Added Boolean param `ifb_api_credentials`, which is defaulted to False and needs to be set to True when using IFB issued API app credentials
+  - Added String param `region`, which is defaulted to 'us' and needs to be set to 'uk' or 'au' based on data center. Use 'qa' for sandbox environments.
 - v0.0.4: January 8, 2022
   - Added `DataflowCount()` method to DFA
   - Added ifb utility function `exportImages()`
