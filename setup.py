@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
   name="zerionAPI",
-  version="0.0.5",
+  version="0.0.6",
   description="Zerion Software API Wrapper",
   long_description=README,
   long_description_content_type="text/markdown",

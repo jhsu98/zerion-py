@@ -50,6 +50,14 @@ class DFA(API):
             'Methods': ('POST', 'GET', 'PUT', 'DELETE'),
             'URI': 'dataflows/%s/recordsets/%s/postactions'
         },
+        'ActionErrors': {
+            'Methods': ('GET'),
+            'URI': 'dataflows/%s/recordsets/%s/postactions/%s/errors'
+        },
+        'RerunActionErrors': {
+            'Methods': ('POST'),
+            'URI': 'dataflows/%s/recordsets/%s/postactions/%s/rerunErrorMessages'
+        },
         'Events': {
             'Methods': ('GET'),
             'URI': 'dataflows/%s/recordsets/%s/events'
@@ -70,11 +78,10 @@ class DFA(API):
             resource += f'/{resource_id}'
         
         if params is not None and len(params) > 0:
-            resource += '?'
 
             for key in params:
                 if params[key] is not None:
-                    resource += f'{key}={urllib.parse.quote(params[key])}&'
+                    resource += f'/{key}/{params[key]}'
 
         return resource
 
@@ -152,6 +159,20 @@ class DFA(API):
         self.__methodCheck(method, resource)
         request = self.__getResourceURI(resource) % (dataflow_id, recordset_id)
         request = self.__completeURI(request, action_id, params)
+        return API.call(self, method, request, body)
+
+    def ActionErrors(self, method, dataflow_id, recordset_id, action_id, *, body=None, params={}):
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (dataflow_id, recordset_id, action_id)
+        request = self.__completeURI(request, None, params)
+        return API.call(self, method, request, body)
+
+    def RerunActionErrors(self, method, dataflow_id, recordset_id, action_id, *, body=None, params={}):
+        resource = inspect.currentframe().f_code.co_name
+        self.__methodCheck(method, resource)
+        request = self.__getResourceURI(resource) % (dataflow_id, recordset_id, action_id)
+        request = self.__completeURI(request, None, params)
         return API.call(self, method, request, body)
 
     def Events(self, method, dataflow_id, recordset_id, event_id=None, *, body=None, params={}):
