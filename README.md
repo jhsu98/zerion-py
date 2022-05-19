@@ -1,5 +1,5 @@
+> **IMPORTANT NOTE (5/19/2022):** After feedback from the community, I will be refactoring this API library to be more similar to the original ifb-wrapper library. Some important design decisions/features that will be included: (1) compatible with both v6 and v8, (2) explicit functions for each method/resource combination, (3) iForm and DFA libraries will be separated. This library and the companion zerion-js libraries will no longer receive development updates.
 # zerion-py (zerionAPI)
-
 The zerionAPI project is an open-source effort to simplify and standardize integrations with the various services offered by Zerion Software. Written in Python, zerionAPI lets you start working with the iFormBuilder or Dataflow Automation API in minutes. No experience necessary.
 
 zerionAPI is also the successor to the ifb-wrapper library which only support iFormBuilder and was restricted to version 6.0 of the API.
